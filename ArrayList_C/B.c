@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>	// memmove
+#include <string.h>
 
 typedef struct Array {
 	int* contents;
@@ -80,7 +80,6 @@ int arraySet(Array* array, int index, int newData, int* oldData) {
 	return 0;
 }
 
-// step 9. 특정 위치에 삽입을 하는 arrayInsert 함수를 구현해 보세요  :D
 int arrayInsert(Array* array, int index, int newData) {
 	if (array == NULL) {
 		fprintf(stderr, "arrayInsert: argument is null\n");
@@ -97,11 +96,6 @@ int arrayInsert(Array* array, int index, int newData) {
 		return -1;
 	}
 
-	// 아래의 코드는 성능 상의 이슈가 있으므로 memmove를 사용하도록 합니다.
-	//for (int i = array->count; i != index; i--)
-	//	array->contents[i] = array->contents[i - 1];
-	//memmove(&array->contents[index + 1], &array->contents[index],
-	//	sizeof(int) * (array->count - index));
 	memmove(array->contents + index + 1, array->contents + index,
 		sizeof(int) * (array->count - index));
 
@@ -110,19 +104,41 @@ int arrayInsert(Array* array, int index, int newData) {
 	return 0;
 }
 
+// step 10. 데이터를 읽어오는 함수를 추가합니다.
+int arrayCount(const Array* array) {
+	if (array == NULL) {
+		fprintf(stderr, "arrayCount: argument is null\n");
+		return -1;
+	}
+	return array->count;
+}
+
+int arrayGet(const Array* array, int index, int* outData) {
+	if (array == NULL || outData == NULL) {
+		fprintf(stderr, "arrayGet: argument is null\n");
+		return -1;
+	}
+
+	if (index < 0 || index >= array->count) {
+		fprintf(stderr, "arrayGet: out of index\n");
+		return -1;
+	}
+
+	*outData = array->contents[index];
+	return 0;
+}
+
 int main() {
 	Array* arr = arrayCreate(10);
 	//--------------------------
 	for (int i = 0; i < 5; i++)
 		arrayAdd(arr, i + 1);
-	arrayDisplay(arr);	// 1 2 3 4 5 
 
-	arrayInsert(arr, 2, 0);
-	arrayDisplay(arr);	// 1 2 0 3 4 5 
-
-	arrayInsert(arr, 0, 0);
-	arrayDisplay(arr);	// 0 1 2 0 3 4 5 
-
+	for (int i = 0; i < arrayCount(arr); i++) {
+		int data;
+		arrayGet(arr, i, &data);	// printf("%d\n", arr[i]);
+		printf("%d\n", data);
+	}
 	//--------------------------
 	arrayDestroy(arr);
 }

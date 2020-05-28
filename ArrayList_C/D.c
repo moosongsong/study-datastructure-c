@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>	// memmove
+#include <string.h>
 
 typedef struct Array {
 	int* contents;
@@ -8,19 +8,18 @@ typedef struct Array {
 	int count;
 } Array;
 
-Array* arrayCreate(size_t size) {
-	if (size == 0) {
-		fprintf(stderr, "arrayCreate: size is zero\n");
-		return NULL;
-	}
-
+// step 12. 배열의 크기가 자동으로 증가될 경우, 배열의 크기를 사용자로부터 입력 받을 필요가 
+// 없습니다.
+//Array* arrayCreate(size_t size) {
+#define INITIAL_SIZE	(4)
+Array* arrayCreate() {
 	Array* array = calloc(1, sizeof(Array));
 	if (array == NULL) {
 		perror("arrayCreate");
 		return NULL;
 	}
 
-	int* contents = malloc(sizeof(int) * size);
+	int* contents = malloc(sizeof(int) * INITIAL_SIZE);	// * size);
 	if (contents == NULL) {
 		perror("arrayCreate");
 		free(array);
@@ -28,7 +27,7 @@ Array* arrayCreate(size_t size) {
 	}
 
 	array->contents = contents;
-	array->size = size;
+	array->size = INITIAL_SIZE;
 	return array;
 }
 
@@ -80,7 +79,6 @@ int arraySet(Array* array, int index, int newData, int* oldData) {
 	return 0;
 }
 
-// step 9. 특정 위치에 삽입을 하는 arrayInsert 함수를 구현해 보세요  :D
 int arrayInsert(Array* array, int index, int newData) {
 	if (array == NULL) {
 		fprintf(stderr, "arrayInsert: argument is null\n");
@@ -97,11 +95,6 @@ int arrayInsert(Array* array, int index, int newData) {
 		return -1;
 	}
 
-	// 아래의 코드는 성능 상의 이슈가 있으므로 memmove를 사용하도록 합니다.
-	//for (int i = array->count; i != index; i--)
-	//	array->contents[i] = array->contents[i - 1];
-	//memmove(&array->contents[index + 1], &array->contents[index],
-	//	sizeof(int) * (array->count - index));
 	memmove(array->contents + index + 1, array->contents + index,
 		sizeof(int) * (array->count - index));
 
@@ -110,19 +103,70 @@ int arrayInsert(Array* array, int index, int newData) {
 	return 0;
 }
 
+int arrayCount(const Array* array) {
+	if (array == NULL) {
+		fprintf(stderr, "arrayCount: argument is null\n");
+		return -1;
+	}
+	return array->count;
+}
+
+int arrayGet(const Array* array, int index, int* outData) {
+	if (array == NULL || outData == NULL) {
+		fprintf(stderr, "arrayGet: argument is null\n");
+		return -1;
+	}
+
+	if (index < 0 || index >= array->count) {
+		fprintf(stderr, "arrayGet: out of index\n");
+		return -1;
+	}
+
+	*outData = array->contents[index];
+	return 0;
+}
+
+int arrayRemove(Array* array, int index, int* outData) {
+	if (array == NULL || outData == NULL) {
+		fprintf(stderr, "arrayRemove: argument is null\n");
+		return -1;
+	}
+
+	if (array->count == 0) {
+		fprintf(stderr, "arrayRemove: array is empty\n");
+		return -1;
+	}
+
+	if (index < 0 || index >= array->count) {
+		fprintf(stderr, "arrayRemove: out of index\n");
+		return -1;
+	}
+
+	*outData = array->contents[index];
+
+	int newCount = array->count - 1;
+	if (index != newCount) {	// 삭제할 원소가 마지막 원소가 아닌 경우
+		memmove(array->contents + index, array->contents + index + 1,
+			sizeof(int) * (newCount - index));
+	}
+
+	array->count = newCount;
+	return 0;
+}
+
 int main() {
 	Array* arr = arrayCreate(10);
 	//--------------------------
 	for (int i = 0; i < 5; i++)
 		arrayAdd(arr, i + 1);
-	arrayDisplay(arr);	// 1 2 3 4 5 
+	arrayDisplay(arr);
 
-	arrayInsert(arr, 2, 0);
-	arrayDisplay(arr);	// 1 2 0 3 4 5 
-
-	arrayInsert(arr, 0, 0);
-	arrayDisplay(arr);	// 0 1 2 0 3 4 5 
-
+	int count = arrayCount(arr);
+	for (int i = 0; i < count; i++) {
+		int data;
+		arrayRemove(arr, 0, &data);
+		arrayDisplay(arr);
+	}
 	//--------------------------
 	arrayDestroy(arr);
 }
