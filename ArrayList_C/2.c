@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>	// system()
 
-// step 1. 정수를 저장하는 배열을 생각해 봅시다.
+// step 1. 정수를 저장하는 배열
 int arr[5];
 int size = 5;
 int count;	// 배열 안의 원소의 갯수 & 저장할 다음 위치
