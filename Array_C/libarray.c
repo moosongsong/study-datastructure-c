@@ -1,12 +1,9 @@
 // libarray.c
-// 2.c에서 라이브러리 설계자가 구현하는 코드를 복사해 오세요
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "Array.h"
 
-// 소스 코드에 구조체를 정의합니다.
 typedef struct Array {
 	void** contents;
 	int size;
@@ -64,7 +61,6 @@ static int increaseSize(Array* array, int size) {
 	array->size = newSize;
 	return 0;
 }
-
 
 void arrayDestroy(Array* array) {
 	if (array == NULL)
